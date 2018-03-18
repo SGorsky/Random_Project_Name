@@ -171,117 +171,91 @@ public class Ticket_Service {
                                 input = scanner.nextLine();
                                 if (input.length() > 8) {
                                     invalidInput = true;
-                                    System.out.println ("Password can be a maximum of 8 characters.");                                    
-                                }
-                                else {
-                                newAccount.setPassword(input);                               
-                                System.out.print("Enter a UserType(AA, FS, BS or SS): ");
-                                input = scanner.nextLine().toLowerCase();
-                                switch (input) {
-                                    case "aa":
-                                        newAccount.setType(Account.UserType.Admin);
-                                        break;
-                                    case "fs":
-                                        newAccount.setType(Account.UserType.FullStandard);
-                                        break;
-                                    case "bs":
-                                        newAccount.setType(Account.UserType.BuyStandard);
-                                        break;
-                                    case "ss":
-                                        newAccount.setType(Account.UserType.SellStandard);
-                                        break;
-                                    default:
-                                        invalidInput = true;
-                                        System.out.println("Invalid user type. A user type must be AA, FS, BS or SS.");
-                                }
-                                if (!invalidInput) {
-                                    System.out.print("Enter a credit amount: ");
-                                    credit = scanner.nextFloat();
-                                    scanner.nextLine();
-                                    //code to check for maximum 2 decimal places
-                                    String[] splitter = String.valueOf(credit).split("\\.");
-                                    int decimalLength = splitter[1].length();
-                                    if (decimalLength > 2) {
-                                        invalidInput = true;
-                                        System.out.println("Credit can have a maximum of 2 decimal places.");
-                                    } else if (credit < 0) {
-                                        invalidInput = true;
-                                        System.out.println("Credit cannot be a negative number.");
-                                    } else if (credit > 1000000.00) {
-                                        invalidInput = true;
-                                        System.out.println("Credit cannot be over 1,000,000.");
-                                    } else {
-                                        newAccount.setCredit(credit);
-                                        accountsHash.put(newAccount.getUsername(), newAccount);
-                                        System.out.println("Account " + newAccount.getUsername() + " created");
-                                        try {
-                                            File f = new File("Current User Accounts.txt");
-                                            f.delete();
-                                            FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
-                                            BufferedWriter bw = new BufferedWriter(fileWriter);
-                                            for(String key: accountsHash.keySet()){
-                                                String username = accountsHash.get(key).getUsername();
-                                                String paddedUsername = String.format("%-15s", username);
-                                                String password = accountsHash.get(key).getPassword();
-                                                String paddedPassword = String.format("%-8s", password);
-                                                Float amount = accountsHash.get(key).getCredit();                                                
-                                                String paddedAmount = String.format ("%.2f", amount);
-                                                String finalAmount = String.format ("%9s", paddedAmount).replace(' ', '0');
-                                                
-                                                String type = null;
-                                                if (null != accountsHash.get(key).getType())switch (accountsHash.get(key).getType()) {
-                                                    case BuyStandard:
-                                                        type = "BS";
-                                                        break;
-                                                    case SellStandard:
-                                                        type = "SS";
-                                                        break;
-                                                    case Admin:
-                                                        type = "AA";
-                                                        break;
-                                                    case FullStandard:
-                                                        type = "FS";
-                                                        break;
-                                                    default:
-                                                        break;
+                                    System.out.println("Password can be a maximum of 8 characters.");
+                                } else {
+                                    newAccount.setPassword(input);
+                                    System.out.print("Enter a UserType(AA, FS, BS or SS): ");
+                                    input = scanner.nextLine().toLowerCase();
+                                    switch (input) {
+                                        case "aa":
+                                            newAccount.setType(Account.UserType.Admin);
+                                            break;
+                                        case "fs":
+                                            newAccount.setType(Account.UserType.FullStandard);
+                                            break;
+                                        case "bs":
+                                            newAccount.setType(Account.UserType.BuyStandard);
+                                            break;
+                                        case "ss":
+                                            newAccount.setType(Account.UserType.SellStandard);
+                                            break;
+                                        default:
+                                            invalidInput = true;
+                                            System.out.println("Invalid user type. A user type must be AA, FS, BS or SS.");
+                                    }
+                                    if (!invalidInput) {
+                                        System.out.print("Enter a credit amount: ");
+                                        credit = scanner.nextFloat();
+                                        scanner.nextLine();
+                                        //code to check for maximum 2 decimal places
+                                        String[] splitter = String.valueOf(credit).split("\\.");
+                                        int decimalLength = splitter[1].length();
+                                        if (decimalLength > 2) {
+                                            invalidInput = true;
+                                            System.out.println("Credit can have a maximum of 2 decimal places.");
+                                        } else if (credit < 0) {
+                                            invalidInput = true;
+                                            System.out.println("Credit cannot be a negative number.");
+                                        } else if (credit > 1000000.00) {
+                                            invalidInput = true;
+                                            System.out.println("Credit cannot be over 1,000,000.");
+                                        } else {
+                                            newAccount.setCredit(credit);
+                                            accountsHash.put(newAccount.getUsername(), newAccount);
+                                            System.out.println("Account " + newAccount.getUsername() + " created");
+                                            try {
+                                                File f = new File("Current User Accounts.txt");
+                                                f.delete();
+                                                FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
+                                                BufferedWriter bw = new BufferedWriter(fileWriter);
+                                                for (String key : accountsHash.keySet()) {
+                                                    bw.write(accountsHash.get(key).toFileString());
+                                                    bw.newLine();
                                                 }
-                                                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
-                                                bw.newLine();
+                                                bw.write("END");
+                                                bw.close();
+
+                                                FileWriter fileWriter1 = new FileWriter("Daily Transactions File.txt", true);
+                                                BufferedWriter bw1 = new BufferedWriter(fileWriter1);
+                                                bw1.newLine();
+                                                bw1.write("Created user with username " + newAccount.getUsername());
+                                                bw1.close();
+                                            } catch (IOException e) {
+                                                Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
                                             }
-                                            bw.write("END");
-                                            bw.close();
-                                                
-                                            FileWriter fileWriter1 = new FileWriter("Daily Transactions File.txt", true);
-                                            BufferedWriter bw1 = new BufferedWriter(fileWriter1);
-                                            bw1.newLine();
-                                            bw1.write("Created user with username " + newAccount.getUsername());
-                                            bw1.close();
-                                        } catch (IOException e) {
-                                            Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                            anotherAccount = true;
                                         }
-                                        anotherAccount = true;
+                                    }
+                                }
+                                while (invalidInput || anotherAccount) {
+                                    System.out.print("Would you like to try account creation again (y/n): ");
+                                    input = scanner.nextLine().toLowerCase();
+                                    switch (input) {
+                                        case "y":
+                                            invalidInput = false;
+                                            anotherAccount = false;
+                                            attemptingCreate = true;
+                                            break;
+                                        case "n":
+                                            attemptingCreate = false;
+                                            invalidInput = false;
+                                            anotherAccount = false;
+                                            break;
                                     }
                                 }
                             }
-                            while (invalidInput || anotherAccount) {
-                                System.out.print("Would you like to try account creation again (y/n): ");
-                                input = scanner.nextLine().toLowerCase();
-                                switch (input) {
-                                    case "y":
-                                        invalidInput = false;
-                                        anotherAccount = false;
-                                        attemptingCreate = true;
-                                        break;
-                                    case "n":
-                                        attemptingCreate = false;
-                                        invalidInput = false;
-                                        anotherAccount = false;
-                                        break;
-                                }
-                            }
                         }
-                    } 
-                    }else {
+                    } else {
                         System.out.println("You must be logged in to use the create command.");
                     }
                     break;
@@ -303,46 +277,21 @@ public class Ticket_Service {
                                 anotherAccount = true;
                                 System.out.println("User " + input + " has been deleted.");
                                 try {
-                                   File f = new File("Current User Accounts.txt");
-                                            f.delete();
-                                            FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
-                                            BufferedWriter bw = new BufferedWriter(fileWriter);
-                                            for(String key: accountsHash.keySet()){
-                                                String username = accountsHash.get(key).getUsername();
-                                                String paddedUsername = String.format("%-15s", username);
-                                                String password = accountsHash.get(key).getPassword();
-                                                String paddedPassword = String.format("%-8s", password);
-                                                Float amount = accountsHash.get(key).getCredit();                                                
-                                                String paddedAmount = String.format ("%.2f", amount);
-                                                String finalAmount = String.format ("%9s", paddedAmount).replace(' ', '0');
-                                                
-                                                String type = null;
-                                                if (null != accountsHash.get(key).getType())switch (accountsHash.get(key).getType()) {
-                                                    case BuyStandard:
-                                                        type = "BS";
-                                                        break;
-                                                    case SellStandard:
-                                                        type = "SS";
-                                                        break;
-                                                    case Admin:
-                                                        type = "AA";
-                                                        break;
-                                                    case FullStandard:
-                                                        type = "FS";
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
-                                                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
-                                                bw.newLine();
-                                            }
-                                            bw.write("END");
-                                            bw.close();
-                                            FileWriter fileWriter1 = new FileWriter("Daily Transactions File.txt", true);
-                                            BufferedWriter bw1 = new BufferedWriter(fileWriter1);
-                                            bw1.newLine();
-                                            bw1.write("Deleted user with username " + input);
-                                            bw1.close();
+                                    File f = new File("Current User Accounts.txt");
+                                    f.delete();
+                                    FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
+                                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                                    for (String key : accountsHash.keySet()) {
+                                        bw.write(accountsHash.get(key).toFileString());
+                                        bw.newLine();
+                                    }
+                                    bw.write("END");
+                                    bw.close();
+                                    FileWriter fileWriter1 = new FileWriter("Daily Transactions File.txt", true);
+                                    BufferedWriter bw1 = new BufferedWriter(fileWriter1);
+                                    bw1.newLine();
+                                    bw1.write("Deleted user with username " + input);
+                                    bw1.close();
                                 } catch (IOException e) {
                                     Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
                                 }
@@ -389,8 +338,8 @@ public class Ticket_Service {
                     //@author Deepsimrat Rataul
                     String var2 = "";
                     String var3 = "";
-                            
-                     if (currentAccount != null) {
+
+                    if (currentAccount != null) {
                         if (currentAccount.getType() == Account.UserType.SellStandard) {
                             System.out.println("Type the username of the user you wish to refund money to:  ");
                             String input3 = scanner.nextLine();
@@ -400,117 +349,33 @@ public class Ticket_Service {
                             if (currentAccount.getCredit() > input2) {
                                 accountsHash.get(input3).setCredit(accountsHash.get(input3).getCredit() + input2);
                                 currentAccount.setCredit(currentAccount.getCredit() - input2);
-                                
+
                                 System.out.println("buyer: " + accountsHash.get(input3).getCredit());
                                 System.out.println("seller: " + currentAccount.getCredit());
                                 try {
-                                            File f = new File("Current User Accounts.txt");
-                                            f.delete();
-                                            FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
-                                            BufferedWriter bw = new BufferedWriter(fileWriter);
-                                            for(String key: accountsHash.keySet()){
-                                                String username = accountsHash.get(key).getUsername();
-                                                String paddedUsername = String.format("%-15s", username);
-                                                String password = accountsHash.get(key).getPassword();
-                                                String paddedPassword = String.format("%-8s", password);
-                                                Float amount = accountsHash.get(key).getCredit();                                                
-                                                String paddedAmount = String.format ("%.2f", amount);
-                                                String finalAmount = String.format ("%9s", paddedAmount).replace(' ', '0');
-                                                
-                                                String type = null;
-                                                if (null != accountsHash.get(key).getType())switch (accountsHash.get(key).getType()) {
-                                                    case BuyStandard:
-                                                        type = "BS";
-                                                        break;
-                                                    case SellStandard:
-                                                        type = "SS";
-                                                        break;
-                                                    case Admin:
-                                                        type = "AA";
-                                                        break;
-                                                    case FullStandard:
-                                                        type = "FS";
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
-                                                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
-                                                bw.newLine();
-                                            }
-                                            bw.write("END");
-                                            bw.close();
-                                                }catch(IOException e) {
-                                Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
-                            }
-                                try{
-                                FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
-                                if(accountsHash.get(input3).getUsername().length() == 1){
-                                 var2 = "              ";}
-                            if(accountsHash.get(input3).getUsername().length() == 2){
-                                 var2 = "             ";}
-                            if(accountsHash.get(input3).getUsername().length() == 3){
-                                 var2 = "            ";}
-                            if(accountsHash.get(input3).getUsername().length() == 4){
-                                 var2 = "           ";}
-                            if(accountsHash.get(input3).getUsername().length() == 5){
-                                 var2 = "          ";}
-                            if(accountsHash.get(input3).getUsername().length() == 6){
-                                 var2 = "         ";}
-                            if(accountsHash.get(input3).getUsername().length() == 7){
-                                 var2 = "        ";}
-                            if(accountsHash.get(input3).getUsername().length() == 8){
-                                 var2 = "       ";}
-                            if(accountsHash.get(input3).getUsername().length() == 9){
-                                 var2 = "      ";}
-                            if(accountsHash.get(input3).getUsername().length() == 10){
-                                 var2 = "     ";}
-                            if(accountsHash.get(input3).getUsername().length() == 11){
-                                 var2 = "    ";}
-                            if(accountsHash.get(input3).getUsername().length() == 12){
-                                 var2 = "   ";}
-                            if(accountsHash.get(input3).getUsername().length() == 13){
-                                 var2 = "  ";}
-                            if(accountsHash.get(input3).getUsername().length() == 14){
-                                 var2 = " ";}
-                            if(accountsHash.get(input3).getUsername().length() == 15){
-                                 var2 = "";}
-                            if(currentAccount.getUsername().length() == 1){
-                                 var3 = "              ";}
-                            if(currentAccount.getUsername().length() == 2){
-                                 var3 = "             ";}
-                            if(currentAccount.getUsername().length() == 3){
-                                 var3 = "            ";}
-                            if(currentAccount.getUsername().length() == 4){
-                                 var3 = "           ";}
-                            if(currentAccount.getUsername().length() == 5){
-                                 var3 = "          ";}
-                            if(currentAccount.getUsername().length() == 6){
-                                 var3 = "         ";}
-                            if(currentAccount.getUsername().length() == 7){
-                                 var3 = "        ";}
-                            if(currentAccount.getUsername().length() == 8){
-                                 var3 = "       ";}
-                            if(currentAccount.getUsername().length() == 9){
-                                 var3 = "      ";}
-                            if(currentAccount.getUsername().length() == 10){
-                                 var3 = "     ";}
-                            if(currentAccount.getUsername().length() == 11){
-                                 var3 = "    ";}
-                            if(currentAccount.getUsername().length() == 12){
-                                 var3 = "   ";}
-                            if(currentAccount.getUsername().length() == 13){
-                                 var3 = "  ";}
-                            if(currentAccount.getUsername().length() == 14){
-                                 var3 = " ";}
-                            if(currentAccount.getUsername().length() == 15){
-                                 var3 = "";}
-                                BufferedWriter bw = new BufferedWriter(fileWriter);
-                                bw.newLine();
-                                bw.write("05" + "_" + accountsHash.get(input3).getUsername()+ var2 + "_" + currentAccount.getUsername() + var3 + "_" + input2);
-                                bw.close(); 
-                            } catch(IOException e) {
-                                Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
-                            }
+                                    File f = new File("Current User Accounts.txt");
+                                    f.delete();
+                                    FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
+                                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                                    for (String key : accountsHash.keySet()) {
+                                        bw.write(accountsHash.get(key).toFileString());
+                                        bw.newLine();
+                                    }
+                                    bw.write("END");
+                                    bw.close();
+                                } catch (IOException e) {
+                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                }
+                                try {
+                                    FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
+                                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                                    bw.newLine();
+                                    bw.write("05" + "_" + String.format("%-15s", accountsHash.get(input3).getUsername()) + 
+                                            "_" + String.format("%-15s", currentAccount.getUsername()) + "_" + input2);
+                                    bw.close();
+                                } catch (IOException e) {
+                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                }
                             } else {
                                 System.out.println("Not enough funds to refund");
                             }
@@ -524,7 +389,7 @@ public class Ticket_Service {
                     break;
                 case "addcredit":
                     //@author Deepsimrat Rataul
-                     if (currentAccount != null) {
+                    if (currentAccount != null) {
 
                         if (currentAccount.getType() == Account.UserType.Admin) {
                             String input6 = "SS";
@@ -535,105 +400,55 @@ public class Ticket_Service {
                             System.out.println("Enter the amount you wish to add:  ");
                             String creditInput = scanner.nextLine();
                             float input5 = Float.parseFloat(creditInput);
-                            if(accountsHash.get(input).getType() == Account.UserType.Admin){
-                                input6 =  "AA";}
-                            if(accountsHash.get(input).getType() == Account.UserType.FullStandard){
-                                input6 =  "FS";}
-                            if(accountsHash.get(input).getType() == Account.UserType.BuyStandard){
-                                  input6 =  "BS";}
-                            if(accountsHash.get(input).getType() == Account.UserType.SellStandard){
-                                 input6 = "SS";}
-                            if(accountsHash.get(input).getUsername().length() == 1){
-                                 var1 = "              ";}
-                            if(accountsHash.get(input).getUsername().length() == 2){
-                                 var1 = "             ";}
-                            if(accountsHash.get(input).getUsername().length() == 3){
-                                 var1 = "            ";}
-                            if(accountsHash.get(input).getUsername().length() == 4){
-                                 var1 = "           ";}
-                            if(accountsHash.get(input).getUsername().length() == 5){
-                                 var1 = "          ";}
-                            if(accountsHash.get(input).getUsername().length() == 6){
-                                 var1 = "         ";}
-                            if(accountsHash.get(input).getUsername().length() == 7){
-                                 var1 = "        ";}
-                            if(accountsHash.get(input).getUsername().length() == 8){
-                                 var1 = "       ";}
-                            if(accountsHash.get(input).getUsername().length() == 9){
-                                 var1 = "      ";}
-                            if(accountsHash.get(input).getUsername().length() == 10){
-                                 var1 = "     ";}
-                            if(accountsHash.get(input).getUsername().length() == 11){
-                                 var1 = "    ";}
-                            if(accountsHash.get(input).getUsername().length() == 12){
-                                 var1 = "   ";}
-                            if(accountsHash.get(input).getUsername().length() == 13){
-                                 var1 = "  ";}
-                            if(accountsHash.get(input).getUsername().length() == 14){
-                                 var1 = " ";}
-                            if(accountsHash.get(input).getUsername().length() == 15){
-                                 var1 = "";}
-                          
+                            if (accountsHash.get(input).getType() == Account.UserType.Admin) {
+                                input6 = "AA";
+                            }
+                            if (accountsHash.get(input).getType() == Account.UserType.FullStandard) {
+                                input6 = "FS";
+                            }
+                            if (accountsHash.get(input).getType() == Account.UserType.BuyStandard) {
+                                input6 = "BS";
+                            }
+                            if (accountsHash.get(input).getType() == Account.UserType.SellStandard) {
+                                input6 = "SS";
+                            }
+
                             if (accountsHash.get(input).getCredit() < 999999) {
                                 accountsHash.get(input).setCredit(accountsHash.get(input).getCredit() + input5);
-                      
-                            
+
                                 System.out.println(accountsHash.get(input).getCredit());
                                 try {
-                                            File f = new File("Current User Accounts.txt");
-                                            f.delete();
-                                            FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
-                                            BufferedWriter bw = new BufferedWriter(fileWriter);
-                                            for(String key: accountsHash.keySet()){
-                                                String username = accountsHash.get(key).getUsername();
-                                                String paddedUsername = String.format("%-15s", username);
-                                                String password = accountsHash.get(key).getPassword();
-                                                String paddedPassword = String.format("%-8s", password);
-                                                Float amount = accountsHash.get(key).getCredit();                                                
-                                                String paddedAmount = String.format ("%.2f", amount);
-                                                String finalAmount = String.format ("%9s", paddedAmount).replace(' ', '0');
-                                                
-                                                String type = null;
-                                                if (null != accountsHash.get(key).getType())switch (accountsHash.get(key).getType()) {
-                                                    case BuyStandard:
-                                                        type = "BS";
-                                                        break;
-                                                    case SellStandard:
-                                                        type = "SS";
-                                                        break;
-                                                    case Admin:
-                                                        type = "AA";
-                                                        break;
-                                                    case FullStandard:
-                                                        type = "FS";
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
-                                                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
-                                                bw.newLine();
-                                            }
-                                            bw.write("END");
-                                            bw.close();
-                                                }catch(IOException e) {
-                                Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                    File f = new File("Current User Accounts.txt");
+                                    f.delete();
+                                    FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
+                                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                                    for (String key : accountsHash.keySet()) {
+                                        bw.write(accountsHash.get(key).toFileString());
+                                        bw.newLine();
+                                    }
+                                    bw.write("END");
+                                    bw.close();
+                                } catch (IOException e) {
+                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                }
+                                try {
+                                    FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
+                                    BufferedWriter bw = new BufferedWriter(fileWriter);
+                                    bw.newLine();
+                                    bw.write("02" + "_" + String.format("%-15s", accountsHash.get(input).getUsername()) + "_" + 
+                                            input6 + "_" + accountsHash.get(input).getCredit());
+                                    bw.close();
+                                } catch (IOException e) {
+                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                }
+                            } else {
+                                System.out.println("You cannot have more than $1,000,000 credit");
                             }
-                               try{
-                                FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
-                                BufferedWriter bw = new BufferedWriter(fileWriter);
-                                bw.newLine();
-                                bw.write("02" + "_" + accountsHash.get(input).getUsername() + var1 + "_" + input6 + "_" + accountsHash.get(input).getCredit());
-                                bw.close(); 
-                            } catch(IOException e) {
-                               Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
-                            }
-                            }else{System.out.println("You cannot have more than $1,000,000 credit");}
 
                         } else {
                             System.out.println("You must be an admin to be able to add credit");
                         }
 
-                       
                     } else {
                         System.out.println("You must be logged in to use the addcredit command.");
                     }
