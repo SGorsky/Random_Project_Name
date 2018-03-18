@@ -5,23 +5,24 @@ package ticket_service;
  * @author Sean
  */
 public class Account {
+
     //UserType enum  states the account type
-    public enum UserType{
+    public enum UserType {
         Admin,
         FullStandard,
         BuyStandard,
         SellStandard
     }
-    
+
     //username is the account's username
     private String username;
-    
+
     //password is the account's password
     private String password;
-    
+
     //type is the account type (either Admin, FullStandard, BuyStandard or SellStandard
     private UserType type;
-    
+
     //credit is the credit on the account (max 999,999)
     private float credit;
 
@@ -78,15 +79,15 @@ public class Account {
         this.type = type;
         this.credit = credit;
     }
-    
+
     //Constructor: Takes in a line from the user accounts file and stores the data accordingly 
     public Account(String userAccountsFileLine) {
-        if (userAccountsFileLine.length() == 37){
+        if (userAccountsFileLine.length() == 37) {
             String[] data = userAccountsFileLine.split(" +");
             username = data[0];
             credit = Float.valueOf(data[2]);
             this.password = data[3];
-            switch(data[1]){
+            switch (data[1]) {
                 case "AA":
                     type = UserType.Admin;
                     break;
@@ -106,7 +107,29 @@ public class Account {
     @Override
     //A string representation of the account
     public String toString() {
-        return "Username: " + username + "\nPassword: " + password + "\nType: " + type + 
-                "\nAvailable Credit: " + credit;
+        return "Username: " + username + "\nPassword: " + password + "\nType: " + type
+                + "\nAvailable Credit: " + credit;
+    }
+
+    public String toFileString() {
+        String output = String.format("%-15s", username) + " ";
+        
+        switch (type) {
+                case Admin:
+                    output += "AA ";
+                    break;
+                case FullStandard:
+                    output += "FS ";
+                    break;
+                case BuyStandard:
+                    output += "BS ";
+                    break;
+                case SellStandard:
+                    output += "SS ";
+                    break;
+        }
+        output += String.format("%9s", String.format("%.02f", credit)).replace(' ', '0') + " " + 
+                String.format("%-8s", password);
+        return output;
     }
 }
