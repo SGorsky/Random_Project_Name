@@ -11,7 +11,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ticket_service.Account;
 
 /**
  *
@@ -42,10 +41,10 @@ public class Ticket_Service {
 
         //currentAccount is the account of the current user or null if there is no user logged in
         Account currentAccount = null;
-        System.out.println("Ticket Selling System\n"
-                + "These are the valid input commands that you can enter. At any point, enter help "
-                + "to see this list again (commands are not case sensitive).\n\n" + helpString + "\n");
-
+//        System.out.println("Ticket Selling System\n"
+//                + "These are the valid input commands that you can enter. At any point, enter help "
+//                + "to see this list again (commands are not case sensitive).\n\n" + helpString + "\n");
+        
         //Read in the accounts from the Current User Accounts file and store each in
         //the accountsHash hash table
         try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
@@ -336,9 +335,6 @@ public class Ticket_Service {
                     break;
                 case "refund":
                     //@author Deepsimrat Rataul
-                    String var2 = "";
-                    String var3 = "";
-
                     if (currentAccount != null) {
                         if (currentAccount.getType() == Account.UserType.SellStandard) {
                             System.out.println("Type the username of the user you wish to refund money to:  ");
@@ -393,7 +389,6 @@ public class Ticket_Service {
 
                         if (currentAccount.getType() == Account.UserType.Admin) {
                             String input6 = "SS";
-                            String var1 = "";
                             System.out.println("Type the username of the user you wish to add money to:  ");
                             input = scanner.nextLine();
                             //float input1 = accountsHash.get(input).getCredit();
