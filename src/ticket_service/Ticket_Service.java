@@ -336,47 +336,58 @@ public class Ticket_Service {
                         System.out.println("You must be logged in to use the buy command.");
                     }
                     break;
+                
                 case "refund":
                     //@author Deepsimrat Rataul
                     if (currentAccount != null) {
                         if (currentAccount.getType() == Account.UserType.SellStandard) {
                             System.out.println("Type the username of the user you wish to refund money to:  ");
                             String input3 = scanner.nextLine();
-                            System.out.println("Enter the amount you wish to add:  ");
-                            String valueInput = scanner.nextLine();
-                            float input2 = Float.parseFloat(valueInput);
-                            if (currentAccount.getCredit() > input2) {
-                                accountsHash.get(input3).setCredit(accountsHash.get(input3).getCredit() + input2);
-                                currentAccount.setCredit(currentAccount.getCredit() - input2);
 
-                                System.out.println("buyer: " + accountsHash.get(input3).getCredit());
-                                System.out.println("seller: " + currentAccount.getCredit());
+                            if (accountsHash.containsKey(input)) {
+                                System.out.println("Enter the amount you wish to add:  ");
+                                String valueInput = scanner.nextLine();
                                 try {
-                                    File f = new File("Current User Accounts.txt");
-                                    f.delete();
-                                    FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
-                                    BufferedWriter bw = new BufferedWriter(fileWriter);
-                                    for (String key : accountsHash.keySet()) {
-                                        bw.write(accountsHash.get(key).toFileString());
-                                        bw.newLine();
+                                    float input2 = Float.parseFloat(valueInput);
+                                    if (currentAccount.getCredit() < input2) {
+                                        System.out.println("You cannot refund more "
+                                                + "than you have in your account");
+                                    } else {
+                                        accountsHash.get(input3).setCredit(accountsHash.get(input3).getCredit() + input2);
+                                        currentAccount.setCredit(currentAccount.getCredit() - input2);
+
+                                        System.out.println("buyer: " + accountsHash.get(input3).getCredit());
+                                        System.out.println("seller: " + currentAccount.getCredit());
+                                        try {
+                                            File f = new File("Current User Accounts.txt");
+                                            f.delete();
+                                            FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
+                                            BufferedWriter bw = new BufferedWriter(fileWriter);
+                                            for (String key : accountsHash.keySet()) {
+                                                bw.write(accountsHash.get(key).toFileString());
+                                                bw.newLine();
+                                            }
+                                            bw.write("END");
+                                            bw.close();
+                                        } catch (IOException e) {
+                                            Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                        }
+                                        try {
+                                            FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
+                                            BufferedWriter bw = new BufferedWriter(fileWriter);
+                                            bw.newLine();
+                                            bw.write("05" + " " + String.format("%-15s", accountsHash.get(input3).getUsername())
+                                                    + " " + String.format("%-15s", currentAccount.getUsername()) + " " + input2);
+                                            bw.close();
+                                        } catch (IOException e) {
+                                            Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                        }
                                     }
-                                    bw.write("END");
-                                    bw.close();
-                                } catch (IOException e) {
-                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
-                                }
-                                try {
-                                    FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
-                                    BufferedWriter bw = new BufferedWriter(fileWriter);
-                                    bw.newLine();
-                                    bw.write("05" + " " + String.format("%-15s", accountsHash.get(input3).getUsername())
-                                            + " " + String.format("%-15s", currentAccount.getUsername()) + " " + input2);
-                                    bw.close();
-                                } catch (IOException e) {
-                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
+                                } catch (NumberFormatException nfEx) {
+                                    System.out.println("Invalid credit amount entered");
                                 }
                             } else {
-                                System.out.println("Not enough funds to refund");
+                                System.out.println("The Account you entered does not exist!");
                             }
                         } else {
                             System.out.println("You must be a SellStandard account to be able to refund");
@@ -386,6 +397,7 @@ public class Ticket_Service {
                         System.out.println("You must be logged in to use the refund command.");
                     }
                     break;
+
                 case "addcredit":
                     //@author Deepsimrat Rataul
                     if (currentAccount != null) {
