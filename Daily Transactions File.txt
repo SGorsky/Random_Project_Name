@@ -8,3 +8,5 @@
 
 02_testaccount    _BS_169.0
 02_testaccount    _BS_170.0
+Created user with username testaccount1
+05 testaccount     testaccount1    -5.0
