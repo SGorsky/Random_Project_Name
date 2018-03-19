@@ -44,7 +44,7 @@ public class Ticket_Service {
 //        System.out.println("Ticket Selling System\n"
 //                + "These are the valid input commands that you can enter. At any point, enter help "
 //                + "to see this list again (commands are not case sensitive).\n\n" + helpString + "\n");
-        
+
         //Read in the accounts from the Current User Accounts file and store each in
         //the accountsHash hash table
         try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
@@ -171,6 +171,9 @@ public class Ticket_Service {
                                 if (input.length() > 8) {
                                     invalidInput = true;
                                     System.out.println("Password can be a maximum of 8 characters.");
+                                } else if (input.isEmpty()) {
+                                    invalidInput = true;
+                                    System.out.println("Password cannot be empty. You must have a password.");
                                 } else {
                                     newAccount.setPassword(input);
                                     System.out.print("Enter a UserType(AA, FS, BS or SS): ");
@@ -366,8 +369,8 @@ public class Ticket_Service {
                                     FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
                                     BufferedWriter bw = new BufferedWriter(fileWriter);
                                     bw.newLine();
-                                    bw.write("05" + "_" + String.format("%-15s", accountsHash.get(input3).getUsername()) + 
-                                            "_" + String.format("%-15s", currentAccount.getUsername()) + "_" + input2);
+                                    bw.write("05" + " " + String.format("%-15s", accountsHash.get(input3).getUsername())
+                                            + " " + String.format("%-15s", currentAccount.getUsername()) + " " + input2);
                                     bw.close();
                                 } catch (IOException e) {
                                     Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
@@ -386,60 +389,68 @@ public class Ticket_Service {
                 case "addcredit":
                     //@author Deepsimrat Rataul
                     if (currentAccount != null) {
-
                         if (currentAccount.getType() == Account.UserType.Admin) {
-                            String input6 = "SS";
+                            String input6 = "";
                             System.out.println("Type the username of the user you wish to add money to:  ");
                             input = scanner.nextLine();
-                            //float input1 = accountsHash.get(input).getCredit();
-                            System.out.println("Enter the amount you wish to add:  ");
-                            String creditInput = scanner.nextLine();
-                            float input5 = Float.parseFloat(creditInput);
-                            if (accountsHash.get(input).getType() == Account.UserType.Admin) {
-                                input6 = "AA";
-                            }
-                            if (accountsHash.get(input).getType() == Account.UserType.FullStandard) {
-                                input6 = "FS";
-                            }
-                            if (accountsHash.get(input).getType() == Account.UserType.BuyStandard) {
-                                input6 = "BS";
-                            }
-                            if (accountsHash.get(input).getType() == Account.UserType.SellStandard) {
-                                input6 = "SS";
-                            }
 
-                            if (accountsHash.get(input).getCredit() < 999999) {
-                                accountsHash.get(input).setCredit(accountsHash.get(input).getCredit() + input5);
+                            if (accountsHash.containsKey(input)) {
+                                System.out.println("Enter the amount you wish to add:  ");
+                                String creditInput = scanner.nextLine();
 
-                                System.out.println(accountsHash.get(input).getCredit());
                                 try {
-                                    File f = new File("Current User Accounts.txt");
-                                    f.delete();
-                                    FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
-                                    BufferedWriter bw = new BufferedWriter(fileWriter);
-                                    for (String key : accountsHash.keySet()) {
-                                        bw.write(accountsHash.get(key).toFileString());
-                                        bw.newLine();
+                                    float addCreditAmount = Float.parseFloat(creditInput);
+
+                                    if (addCreditAmount <= 0 || addCreditAmount > 1000) {
+                                        System.out.println("You must enter a value greater than 0 and "
+                                                + "less than or equal to 1000");
+                                    } else {
+                                        if (accountsHash.get(input).getType() == Account.UserType.Admin) {
+                                            input6 = "AA";
+                                        }
+                                        if (accountsHash.get(input).getType() == Account.UserType.FullStandard) {
+                                            input6 = "FS";
+                                        }
+                                        if (accountsHash.get(input).getType() == Account.UserType.BuyStandard) {
+                                            input6 = "BS";
+                                        }
+                                        if (accountsHash.get(input).getType() == Account.UserType.SellStandard) {
+                                            input6 = "SS";
+                                        }
+
+                                        if (accountsHash.get(input).getCredit() + addCreditAmount < 999999) {
+                                            accountsHash.get(input).setCredit(accountsHash.get(input).getCredit() + addCreditAmount);
+
+                                            System.out.println(accountsHash.get(input).getCredit());
+
+                                            File f = new File("Current User Accounts.txt");
+                                            f.delete();
+                                            FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
+                                            BufferedWriter bw = new BufferedWriter(fileWriter);
+                                            for (String key : accountsHash.keySet()) {
+                                                bw.write(accountsHash.get(key).toFileString());
+                                                bw.newLine();
+                                            }
+                                            bw.write("END");
+                                            bw.close();
+
+                                            fileWriter = new FileWriter("Daily Transactions File.txt", true);
+                                            bw = new BufferedWriter(fileWriter);
+                                            bw.newLine();
+                                            bw.write("02" + " " + String.format("%-15s", accountsHash.get(input).getUsername()) + " "
+                                                    + input6 + " " + accountsHash.get(input).getCredit());
+                                            bw.close();
+                                        } else {
+                                            System.out.println("You cannot have more than $1,000,000 credit");
+                                        }
                                     }
-                                    bw.write("END");
-                                    bw.close();
+                                } catch (NumberFormatException nfEx) {
+                                    System.out.println("Invalid credit amount entered");
                                 } catch (IOException e) {
                                     Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
                                 }
-                                try {
-                                    FileWriter fileWriter = new FileWriter("Daily Transactions File.txt", true);
-                                    BufferedWriter bw = new BufferedWriter(fileWriter);
-                                    bw.newLine();
-                                    bw.write("02" + "_" + String.format("%-15s", accountsHash.get(input).getUsername()) + "_" + 
-                                            input6 + "_" + accountsHash.get(input).getCredit());
-                                    bw.close();
-                                } catch (IOException e) {
-                                    Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
-                                }
-                            } else {
-                                System.out.println("You cannot have more than $1,000,000 credit");
-                            }
 
+                            }
                         } else {
                             System.out.println("You must be an admin to be able to add credit");
                         }
