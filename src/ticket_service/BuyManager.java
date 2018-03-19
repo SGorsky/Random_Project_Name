@@ -243,34 +243,7 @@ public class BuyManager {
             FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
             BufferedWriter bw = new BufferedWriter(fileWriter);
             for (String key : accountsHash.keySet()) {
-                String username = accountsHash.get(key).getUsername();
-                String paddedUsername = String.format("%-15s", username);
-                String password = accountsHash.get(key).getPassword();
-                String paddedPassword = String.format("%-8s", password);
-                Float amount = accountsHash.get(key).getCredit();
-                String paddedAmount = String.format("%.2f", amount);
-                String finalAmount = String.format("%9s", paddedAmount).replace(' ', '0');
-
-                String type = null;
-                if (null != accountsHash.get(key).getType()) {
-                    switch (accountsHash.get(key).getType()) {
-                        case BuyStandard:
-                            type = "BS";
-                            break;
-                        case SellStandard:
-                            type = "SS";
-                            break;
-                        case Admin:
-                            type = "AA";
-                            break;
-                        case FullStandard:
-                            type = "FS";
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
+                bw.write(accountsHash.get(key).toFileString());
                 bw.newLine();
             }
             bw.write("END");
@@ -289,34 +262,7 @@ public class BuyManager {
             FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
             BufferedWriter bw = new BufferedWriter(fileWriter);
             for (String key : accountsHash.keySet()) {
-                String username = accountsHash.get(key).getUsername();
-                String paddedUsername = String.format("%-15s", username);
-                String password = accountsHash.get(key).getPassword();
-                String paddedPassword = String.format("%-8s", password);
-                Float amount = accountsHash.get(key).getCredit();
-                String paddedAmount = String.format("%.2f", amount);
-                String finalAmount = String.format("%9s", paddedAmount).replace(' ', '0');
-
-                String type = null;
-                if (null != accountsHash.get(key).getType()) {
-                    switch (accountsHash.get(key).getType()) {
-                        case BuyStandard:
-                            type = "BS";
-                            break;
-                        case SellStandard:
-                            type = "SS";
-                            break;
-                        case Admin:
-                            type = "AA";
-                            break;
-                        case FullStandard:
-                            type = "FS";
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
+                bw.write(accountsHash.get(key).toFileString());
                 bw.newLine();
             }
             bw.write("END");
