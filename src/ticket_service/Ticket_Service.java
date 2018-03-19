@@ -9,9 +9,9 @@ import java.util.Hashtable;
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ticket_service.Account;
 
 /**
  *
@@ -48,9 +48,9 @@ public class Ticket_Service {
 
         //Read in the accounts from the Current User Accounts file and store each in
         //the accountsHash hash table
-        try (BufferedReader br = new BufferedReader(new FileReader("Current User Accounts.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(args[0]))) {
             String line = br.readLine();
-            while (!line.equals("END                         ")) {
+            while (!line.equals("END")) {
                 Account newAccount = new Account(line);
                 //accountsList.add(newAccount);
                 accountsHash.put(newAccount.getUsername(), newAccount);
@@ -63,7 +63,7 @@ public class Ticket_Service {
 
         //Read in the available tickets from the "Available Tickets File" file and store each in
         //the accountsHash hash table
-        try (BufferedReader br = new BufferedReader(new FileReader("Available Tickets File.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(args[1]))) {
             String line = br.readLine();
             while (!line.equals("END")) {
                 AvailableTicket ticket = new AvailableTicket(line);
