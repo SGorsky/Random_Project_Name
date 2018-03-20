@@ -41,7 +41,7 @@ public class BuyManager {
     }
 
     // Initialize variables and create dialogue for user to complete.
-    public void Buy(ArrayList<AvailableTicket> list, Account currentAccount, 
+    public void Buy(ArrayList<AvailableTicket> list, Account currentAccount,
             Hashtable<String, Account> accounts) {
         input = "Not Return";
         gotEventTitle = false;
@@ -89,8 +89,7 @@ public class BuyManager {
     // Get input for seller username to buy from and check if valid.
     private boolean ParseSellerUsername() {
         Output(false, "Enter a seller's username to check their inventory: ");
-        input = scanner.nextLine();
-        // TODO: Parse Input    
+        input = scanner.nextLine(); 
 
         boolean exists = false;
         for (AvailableTicket t : availableTicketsList) {
@@ -113,8 +112,7 @@ public class BuyManager {
     // Get input for event title to buy and check if valid.
     private boolean ParseEventTitle() {
         Output(false, "Enter the title of the event you'd like: ");
-        input = scanner.nextLine();
-        // TODO: Parse Input     
+        input = scanner.nextLine();  
 
         for (AvailableTicket t : selectedTicketsList) {
             if (t.GetEventName().trim().equals(input)) {
@@ -133,20 +131,24 @@ public class BuyManager {
     private boolean ParseNumTickets() {
         Output(false, "Enter the number of tickets you want to purchase: ");
         input = scanner.nextLine().toLowerCase();
-        // TODO: Parse Input
-        // TODO: Check if user has enough money;
 
-        if (myAccount.getType() != UserType.Admin) {
-            if (Integer.parseInt(input) > 4) {
-                Output(true, "You are only allowed to buy at most 4 tickets.");
+        String text = input.replaceAll("[^0-9]+", "");
+        if (!text.isEmpty() && text.length() != 0) {
+            if (myAccount.getType() != UserType.Admin) {
+                if (Integer.parseInt(input) > 4) {
+                    Output(true, "You are only allowed to buy at most 4 tickets.");
+                }
             }
-        }
 
-        if (Integer.parseInt(input) <= selectedTicket.GetNumberTickets()) {
-            numberToPurchase = Integer.parseInt(input);
-            return true;
+            if (Integer.parseInt(input) <= selectedTicket.GetNumberTickets()) {
+                numberToPurchase = Integer.parseInt(input);
+                return true;
+            } else {
+                Output(true, "The seller does not have enough tickets, try again.");
+                return false;
+            }
         } else {
-            Output(true, "The seller does not have enough tickets, try again.");
+            Output(true, "Invalid input, try again.");
             return false;
         }
     }
@@ -159,7 +161,6 @@ public class BuyManager {
                 + df.format(selectedTicket.GetTicketPrice()) + " per ticket.");
         Output(false, "Enter 'yes' to purchase or 'no' to return: ");
         input = scanner.nextLine().toLowerCase();
-        // TODO: Parse Input
 
         if (input.equals("yes")) {
             AvailableTicket t = new AvailableTicket(
@@ -169,8 +170,8 @@ public class BuyManager {
                     selectedTicket.GetTicketPrice()
             );
             WriteToDailyTransactionsFile(t, "04");
-            AddCredit(selectedTicket.GetSellerUsername(), (float)totalCost);
-            RemoveCredit(myAccount.getUsername(), (float)totalCost);
+            AddCredit(selectedTicket.GetSellerUsername(), (float) totalCost);
+            RemoveCredit(myAccount.getUsername(), (float) totalCost);
             Output(true, "You have successfully purchased the tickets!");
         } else if (input.equals("no")) {
             Output(true, "You have cancelled the transaction.");
@@ -243,7 +244,34 @@ public class BuyManager {
             FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
             BufferedWriter bw = new BufferedWriter(fileWriter);
             for (String key : accountsHash.keySet()) {
-                bw.write(accountsHash.get(key).toFileString());
+                String username = accountsHash.get(key).getUsername();
+                String paddedUsername = String.format("%-15s", username);
+                String password = accountsHash.get(key).getPassword();
+                String paddedPassword = String.format("%-8s", password);
+                Float amount = accountsHash.get(key).getCredit();
+                String paddedAmount = String.format("%.2f", amount);
+                String finalAmount = String.format("%9s", paddedAmount).replace(' ', '0');
+
+                String type = null;
+                if (null != accountsHash.get(key).getType()) {
+                    switch (accountsHash.get(key).getType()) {
+                        case BuyStandard:
+                            type = "BS";
+                            break;
+                        case SellStandard:
+                            type = "SS";
+                            break;
+                        case Admin:
+                            type = "AA";
+                            break;
+                        case FullStandard:
+                            type = "FS";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
                 bw.newLine();
             }
             bw.write("END");
@@ -252,8 +280,8 @@ public class BuyManager {
             Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
         }
     }
-    
-     public void RemoveCredit(String user, float credit) {
+
+    public void RemoveCredit(String user, float credit) {
         try {
             Output(true, accountsHash.get(user).toString());
             accountsHash.get(user).setCredit(accountsHash.get(user).getCredit() - credit);
@@ -262,7 +290,34 @@ public class BuyManager {
             FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
             BufferedWriter bw = new BufferedWriter(fileWriter);
             for (String key : accountsHash.keySet()) {
-                bw.write(accountsHash.get(key).toFileString());
+                String username = accountsHash.get(key).getUsername();
+                String paddedUsername = String.format("%-15s", username);
+                String password = accountsHash.get(key).getPassword();
+                String paddedPassword = String.format("%-8s", password);
+                Float amount = accountsHash.get(key).getCredit();
+                String paddedAmount = String.format("%.2f", amount);
+                String finalAmount = String.format("%9s", paddedAmount).replace(' ', '0');
+
+                String type = null;
+                if (null != accountsHash.get(key).getType()) {
+                    switch (accountsHash.get(key).getType()) {
+                        case BuyStandard:
+                            type = "BS";
+                            break;
+                        case SellStandard:
+                            type = "SS";
+                            break;
+                        case Admin:
+                            type = "AA";
+                            break;
+                        case FullStandard:
+                            type = "FS";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                bw.write(paddedUsername + " " + type + " " + finalAmount + " " + paddedPassword);
                 bw.newLine();
             }
             bw.write("END");
@@ -270,5 +325,5 @@ public class BuyManager {
         } catch (IOException e) {
             Logger.getLogger(Ticket_Service.class.getName()).log(Level.SEVERE, null, e);
         }
-     }
+    }
 }

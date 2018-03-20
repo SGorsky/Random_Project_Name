@@ -93,22 +93,28 @@ public class SellManager {
     private boolean ParseNumTickets() {
         Output(false, "Enter the number of tickets you want to sell: ");
         input = scanner.nextLine().toLowerCase();
-        // TODO: Parse Input
-        // TODO: Check if number of tickets less than 100
-
-        numTickets = Integer.parseInt(input);
-        return true;
+        String text = input.replaceAll("[^0-9]+", "");
+        if (!text.isEmpty() && text.length() != 0) {
+            numTickets = Integer.parseInt(input);
+            return true;
+        } else {
+            Output(true, "Invalid input, try again.");
+            return false;
+        }
     }
 
     // Get input for sale price and check if valid.
     private boolean ParseSalePrice() {
         Output(false, "Enter a price you'd like to sell each ticket for: ");
         input = scanner.nextLine();
-        // TODO: Parse Input    
-        // TODO: Check if price less than 999.99
 
-        salePrice = Double.parseDouble(input);
-        return true;
+        try {
+            salePrice = Double.parseDouble(input);
+            return true;
+        } catch (Exception e) {
+            Output(true, "Invalid input, try again.");
+            return false;
+        }
     }
 
     // Ask user for confirmation before putting in sell order.
