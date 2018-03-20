@@ -82,9 +82,6 @@ public class SellManager {
     private boolean ParseEventTitle() {
         Output(false, "Enter the title of the event you'd like to sell: ");
         input = scanner.nextLine();
-        // TODO: Parse Input  
-        // TODO: Check if input less than 25 characters
-
         eventTitle = input;
         return true;
     }
@@ -107,7 +104,6 @@ public class SellManager {
     private boolean ParseSalePrice() {
         Output(false, "Enter a price you'd like to sell each ticket for: ");
         input = scanner.nextLine();
-
         try {
             salePrice = Double.parseDouble(input);
             return true;
@@ -124,7 +120,6 @@ public class SellManager {
                 + " for $" + df.format(salePrice) + " per ticket.");
         Output(false, "Enter 'yes' to confirm or 'no' to return: ");
         input = scanner.nextLine().toLowerCase();
-        // TODO: Parse Input
 
         if (input.equals("yes")) {
             AvailableTicket t = new AvailableTicket(
