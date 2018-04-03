@@ -23,17 +23,17 @@ import static ticket_service.SellManager.padRight;
  */
 public class BuyManager {
 
-    private String input;
-    private Scanner scanner;
-    private boolean gotEventTitle, gotSellerUsername, gotNumTickets;
-    private ArrayList<AvailableTicket> availableTicketsList;
-    private ArrayList<AvailableTicket> selectedTicketsList;
-    private AvailableTicket selectedTicket;
-    private Hashtable<String, Account> accountsHash;
-    private Account myAccount;
-    private int numberToPurchase;
-    private double totalCost;
-    private DecimalFormat df;
+    public String input;
+    public Scanner scanner;
+    public boolean gotEventTitle, gotSellerUsername, gotNumTickets;
+    public ArrayList<AvailableTicket> availableTicketsList;
+    public ArrayList<AvailableTicket> selectedTicketsList;
+    public AvailableTicket selectedTicket;
+    public Hashtable<String, Account> accountsHash;
+    public Account myAccount;
+    public int numberToPurchase;
+    public double totalCost;
+    public DecimalFormat df;
 
     public BuyManager() {
         selectedTicketsList = new ArrayList<>();
@@ -58,39 +58,50 @@ public class BuyManager {
 
     // Ask for user input in a specific order, allowing user to enter inputs
     // again if mistake is made or return back to main loop at any time.
-    private void CreateDialogue() {
+    public boolean CreateDialogue() {
         if (myAccount.getType() != UserType.SellStandard) {
             Output(true, "Enter return at any time to cancel operation.");
             while (!input.equals("return")) {
                 if (gotSellerUsername) {
                     if (gotEventTitle) {
                         if (gotNumTickets) {
-                            if (Confirm()) {
+                            totalCost = selectedTicket.GetTicketPrice() * numberToPurchase;
+                            Output(true, "The total cost is $" + df.format(totalCost) + " at a price of $"
+                                    + df.format(selectedTicket.GetTicketPrice()) + " per ticket.");
+                            Output(false, "Enter 'yes' to purchase or 'no' to return: ");
+                            input = scanner.nextLine();
+                            if (Confirm(input)) {
                                 input = "return";
+                                return true;
                             }
                         } else {
-                            gotNumTickets = ParseNumTickets();
+                            Output(false, "Enter the number of tickets you want to purchase: ");
+                            input = scanner.nextLine();
+                            gotNumTickets = ParseNumTickets(input);
                         }
                     } else {
-                        gotEventTitle = ParseEventTitle();
+                        Output(false, "Enter the title of the event you'd like: ");
+                        input = scanner.nextLine();
+                        gotEventTitle = ParseEventTitle(input);
                     }
                 } else {
-                    gotSellerUsername = ParseSellerUsername();
+                    Output(false, "Enter a seller's username to check their inventory: ");
+                    input = scanner.nextLine();
+                    gotSellerUsername = ParseSellerUsername(input);
                 }
             }
         } else {
             Output(true, "Your account does not have access to buying tickets.");
+            return false;
         }
 
         // Clean up and return to main loop.
         Output(true, "Exiting...");
+        return true;
     }
 
     // Get input for seller username to buy from and check if valid.
-    private boolean ParseSellerUsername() {
-        Output(false, "Enter a seller's username to check their inventory: ");
-        input = scanner.nextLine();   
-
+    public boolean ParseSellerUsername(String input) {
         boolean exists = false;
         for (AvailableTicket t : availableTicketsList) {
             Output(true, t.toString());
@@ -110,10 +121,7 @@ public class BuyManager {
     }
 
     // Get input for event title to buy and check if valid.
-    private boolean ParseEventTitle() {
-        Output(false, "Enter the title of the event you'd like: ");
-        input = scanner.nextLine();
-
+    public boolean ParseEventTitle(String input) {
         for (AvailableTicket t : selectedTicketsList) {
             if (t.GetEventName().trim().equals(input)) {
                 selectedTicket = t;
@@ -128,22 +136,27 @@ public class BuyManager {
     }
 
     // Get input for number of tickets to buy and check if valid.
-    private boolean ParseNumTickets() {
-        Output(false, "Enter the number of tickets you want to purchase: ");
-        input = scanner.nextLine().toLowerCase();
-        String text = input.replaceAll("[^0-9]+", "");
-        if (!text.isEmpty() && text.length() != 0) {
-            if (myAccount.getType() != UserType.Admin) {
-                if (Integer.parseInt(input) > 4) {
-                    Output(true, "You are only allowed to buy at most 4 tickets.");
+    public boolean ParseNumTickets(String input) {
+        if (input != null) {
+            input = input.toLowerCase();
+            String text = input.replaceAll("[^0-9]+", "");
+            if (!text.isEmpty() && text.length() != 0) {
+                if (myAccount.getType() != UserType.Admin) {
+                    if (Integer.parseInt(input) > 4) {
+                        Output(true, "You are only allowed to buy at most 4 tickets.");
+                        return false;
+                    }
                 }
-            }
 
-            if (Integer.parseInt(input) <= selectedTicket.GetNumberTickets()) {
-                numberToPurchase = Integer.parseInt(input);
-                return true;
+                if (Integer.parseInt(input) <= selectedTicket.GetNumberTickets()) {
+                    numberToPurchase = Integer.parseInt(input);
+                    return true;
+                } else {
+                    Output(true, "The seller does not have enough tickets, try again.");
+                    return false;
+                }
             } else {
-                Output(true, "The seller does not have enough tickets, try again.");
+                Output(true, "Invalid input, try again.");
                 return false;
             }
         } else {
@@ -153,15 +166,11 @@ public class BuyManager {
     }
 
     // Ask user for confirmation before putting in buy order.
-    private boolean Confirm() {
-        totalCost = selectedTicket.GetTicketPrice() * numberToPurchase;
-
-        Output(true, "The total cost is $" + df.format(totalCost) + " at a price of $"
-                + df.format(selectedTicket.GetTicketPrice()) + " per ticket.");
-        Output(false, "Enter 'yes' to purchase or 'no' to return: ");
-        input = scanner.nextLine().toLowerCase();
-
-        if (input.equals("yes")) {
+    public boolean Confirm(String input) {
+        if(input == null){
+            Output(true, "You have cancelled the transaction.");
+        }
+        else if (input.equals("yes")) {
             AvailableTicket t = new AvailableTicket(
                     selectedTicket.GetEventName(),
                     selectedTicket.GetSellerUsername(),
@@ -172,7 +181,7 @@ public class BuyManager {
             AddCredit(selectedTicket.GetSellerUsername(), (float) totalCost);
             RemoveCredit(myAccount.getUsername(), (float) totalCost);
             Output(true, "You have successfully purchased the tickets!");
-        } else if (input.equals("no")) {
+        } else {
             Output(true, "You have cancelled the transaction.");
         }
 
@@ -180,12 +189,18 @@ public class BuyManager {
     }
 
     // Formats the output for visibility.
-    private void Output(boolean newLine, String s) {
-        if (newLine) {
-            System.out.println("BUY MANAGER | " + s);
-        } else {
-            System.out.print("BUY MANAGER | " + s);
+    public String Output(boolean newLine, String s) {
+        String str;
+        if (s != null) {
+            str = "BUY MANAGER | " + s;
+            if (newLine) {
+                System.out.println(str);
+            } else {
+                System.out.print(str);
+            }
         }
+        else str = "";
+        return str;
     }
 
     // Writes to daily transactions file.

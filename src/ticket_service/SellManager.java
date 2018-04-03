@@ -19,15 +19,15 @@ import static ticket_service.BuyManager.WriteToDailyTransactionsFile;
  */
 public class SellManager {
 
-    private String input;
-    private Scanner scanner;
-    private String eventTitle;
-    private int numTickets;
-    private double salePrice;
-    private boolean gotEventTitle, gotSalePrice, gotNumTickets;
-    private Account myAccount;
-    private DecimalFormat df;
-    private ArrayList<AvailableTicket> availableTicketsList;
+    public String input;
+    public Scanner scanner;
+    public String eventTitle;
+    public int numTickets;
+    public double salePrice;
+    public boolean gotEventTitle, gotSalePrice, gotNumTickets;
+    public Account myAccount;
+    public DecimalFormat df;
+    public ArrayList<AvailableTicket> availableTicketsList;
 
     public SellManager() {
         df = new DecimalFormat("####0.00");
@@ -50,50 +50,79 @@ public class SellManager {
 
     // Ask for user input in a specific order, allowing user to enter inputs
     // again if mistake is made or return back to main loop at any time.
-    private void CreateDialogue() {
+    public boolean CreateDialogue() {
         if (myAccount.getType() != UserType.BuyStandard) {
             Output(true, "Enter return at any time to cancel operation.");
             while (!input.equals("return")) {
                 if (gotEventTitle) {
                     if (gotNumTickets) {
                         if (gotSalePrice) {
-                            if (Confirm()) {
+                            Output(true, "You are selling " + numTickets + " tickets"
+                                    + " to the event '" + eventTitle + "'"
+                                    + " for $" + df.format(salePrice) + " per ticket.");
+                            Output(false, "Enter 'yes' to confirm or 'no' to return: ");
+                            input = scanner.nextLine().toLowerCase();
+                            if (Confirm(input)) {
                                 input = "return";
+                                return true;
                             }
                         } else {
-                            gotSalePrice = ParseSalePrice();
+                            Output(false, "Enter a price you'd like to sell each ticket for: ");
+                            input = scanner.nextLine();
+                            gotSalePrice = ParseSalePrice(input);
                         }
                     } else {
-                        gotNumTickets = ParseNumTickets();
+                        Output(false, "Enter the number of tickets you want to sell: ");
+                        input = scanner.nextLine().toLowerCase();
+                        gotNumTickets = ParseNumTickets(input);
                     }
                 } else {
-                    gotEventTitle = ParseEventTitle();
+                    Output(false, "Enter the title of the event you'd like to sell: ");
+                    input = scanner.nextLine();
+                    gotEventTitle = ParseEventTitle(input);
                 }
             }
         } else {
             Output(true, "Your account does not have access to selling tickets.");
+            return false;
         }
 
         // Clean up and return to main loop.
         Output(true, "Exiting...");
-    }
-
-    // Get input fro event title to sell and check if valid.
-    private boolean ParseEventTitle() {
-        Output(false, "Enter the title of the event you'd like to sell: ");
-        input = scanner.nextLine();
-        eventTitle = input;
         return true;
     }
 
+    // Get input fro event title to sell and check if valid.
+    public boolean ParseEventTitle(String input) {
+        if (input != null) {
+            if (input.length() <= 25) {
+                eventTitle = input;
+                return true;
+            } else {
+                Output(true, "Event title too long, must be max 25 characters.");
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     // Get input for number of tickets to sell and check if valid.
-    private boolean ParseNumTickets() {
-        Output(false, "Enter the number of tickets you want to sell: ");
-        input = scanner.nextLine().toLowerCase();
-        String text = input.replaceAll("[^0-9]+", "");
-        if (!text.isEmpty() && text.length() != 0) {
-            numTickets = Integer.parseInt(input);
-            return true;
+    public boolean ParseNumTickets(String input) {
+        if (input != null) {
+            String text = input.replaceAll("[^0-9]+", "");
+            if (!text.isEmpty() && text.length() != 0) {
+                if (Integer.parseInt(input) <= 100) {
+                    numTickets = Integer.parseInt(input);
+                    return true;
+                } else {
+                    Output(true, "You can only sell at most 100 tickets.");
+                    return false;
+                }
+            } else {
+                Output(true, "Invalid input, try again.");
+                return false;
+            }
         } else {
             Output(true, "Invalid input, try again.");
             return false;
@@ -101,9 +130,7 @@ public class SellManager {
     }
 
     // Get input for sale price and check if valid.
-    private boolean ParseSalePrice() {
-        Output(false, "Enter a price you'd like to sell each ticket for: ");
-        input = scanner.nextLine();
+    public boolean ParseSalePrice(String input) {
         try {
             salePrice = Double.parseDouble(input);
             return true;
@@ -114,14 +141,10 @@ public class SellManager {
     }
 
     // Ask user for confirmation before putting in sell order.
-    private boolean Confirm() {
-        Output(true, "You are selling " + numTickets + " tickets"
-                + " to the event '" + eventTitle + "'"
-                + " for $" + df.format(salePrice) + " per ticket.");
-        Output(false, "Enter 'yes' to confirm or 'no' to return: ");
-        input = scanner.nextLine().toLowerCase();
-
-        if (input.equals("yes")) {
+    public boolean Confirm(String input) {
+        if (input == null) {
+            Output(true, "You have cancelled the transaction.");
+        } else if (input.equals("yes")) {
             AvailableTicket t = new AvailableTicket(
                     eventTitle,
                     myAccount.getUsername(),
@@ -140,12 +163,19 @@ public class SellManager {
     }
 
     // Formats the output for visibility.
-    private void Output(boolean newLine, String s) {
-        if (newLine) {
-            System.out.println("SELL MANAGER | " + s);
+    public String Output(boolean newLine, String s) {
+        String str;
+        if (s != null) {
+            str = "SELL MANAGER | " + s;
+            if (newLine) {
+                System.out.println(str);
+            } else {
+                System.out.print(str);
+            }
         } else {
-            System.out.print("SELL MANAGER | " + s);
+            str = "";
         }
+        return str;
     }
 
     // Writes to available tickets file.
