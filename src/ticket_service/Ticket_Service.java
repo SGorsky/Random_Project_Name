@@ -85,46 +85,23 @@ public class Ticket_Service {
                 case "login":
                     //If there is no account currently logged in, continue, else display a prompt
                     if (currentAccount == null) {
-                        boolean attemptingLogin = true;
+                        //Read in username and password
+                        System.out.print("Enter your username: ");
+                        input = scanner.nextLine();
+                        System.out.print("Enter your password: ");
+                        String password = scanner.nextLine();
 
-                        //Continue to allow the user to attempt to login while they still want to
-                        while (attemptingLogin) {
-                            //Read in username and password
-                            System.out.print("Enter your username: ");
-                            input = scanner.nextLine();
-                            System.out.print("Enter your password: ");
-                            String password = scanner.nextLine();
-
-                            //Check if the username exists and if it does, check if the password
-                            //is correct for that user. If yes, log them in
-                            if (accountsHash.containsKey(input)
-                                    && accountsHash.get(input).getPassword().equals(password)) {
-                                //&& accountsList.get(accountsHash.get(input)).getPassword().equals(password)) {
-                                currentAccount = accountsHash.get(input);//accountsList.get(accountsHash.get(input));
-                                attemptingLogin = false;
-                                System.out.println("Welcome " + currentAccount.getUsername());
-                            } else {
-                                //Invalid username or password. Ask them if the want to try again
-                                //If y then let them try again. If n then go back to the main menu
-                                //Loop until you get either y or n
-                                boolean validInput = false;
-                                while (!validInput) {
-                                    System.out.print("Invalid user credentials. Would you like to "
-                                            + "try again (y/n): ");
-                                    input = scanner.nextLine().toLowerCase();
-                                    switch (input) {
-                                        case "y":
-                                            validInput = true;
-                                            attemptingLogin = true;
-                                            break;
-                                        case "n":
-                                            validInput = true;
-                                            attemptingLogin = false;
-                                            break;
-                                    }
-                                }
-                            }
+                        //Check if the username exists and if it does, check if the password
+                        //is correct for that user. If yes, log them in
+                        if (accountsHash.containsKey(input)
+                                && accountsHash.get(input).getPassword().equals(password)) {
+                            currentAccount = accountsHash.get(input);
+                            System.out.println("Welcome " + currentAccount.getUsername());
+                        } else {
+                            //Invalid username or password
+                            System.out.print("Invalid user credentials");
                         }
+
                     } else {
                         System.out.println("You are currently logged in as "
                                 + currentAccount.getUsername() + ". Please logout in order to "
@@ -164,6 +141,9 @@ public class Ticket_Service {
                             } else if (input.length() > 15) {
                                 invalidInput = true;
                                 System.out.println("Username can be a maximum of 15 characters.");
+                            } else if (input.isEmpty()) {
+                                invalidInput = true;
+                                System.out.println("Username cannot be empty. You must have a username.");
                             } else {
                                 newAccount.setUsername(input);
                                 System.out.print("Enter a password: ");
@@ -359,7 +339,7 @@ public class Ticket_Service {
 
                                         System.out.println("buyer: " + accountsHash.get(refundAccount).getCredit());
                                         System.out.println("seller: " + currentAccount.getCredit());
-                                        
+
                                         File f = new File("Current User Accounts.txt");
                                         f.delete();
                                         FileWriter fileWriter = new FileWriter("Current User Accounts.txt", true);
