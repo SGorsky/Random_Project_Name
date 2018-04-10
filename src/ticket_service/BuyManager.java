@@ -149,8 +149,18 @@ public class BuyManager {
                 }
 
                 if (Integer.parseInt(input) <= selectedTicket.GetNumberTickets()) {
-                    numberToPurchase = Integer.parseInt(input);
-                    return true;
+                    if (Integer.parseInt(input) > 0) {
+                        if (myAccount.getCredit() >= Integer.parseInt(input) * selectedTicket.GetTicketPrice()) {
+                            numberToPurchase = Integer.parseInt(input);
+                            return true;
+                        } else {
+                            Output(true, "You do not have enough money for this purchase, try again.");
+                            return false;
+                        }
+                    } else {
+                        Output(true, "Enter a positive number, try again.");
+                        return false;
+                    }
                 } else {
                     Output(true, "The seller does not have enough tickets, try again.");
                     return false;
@@ -167,10 +177,9 @@ public class BuyManager {
 
     // Ask user for confirmation before putting in buy order.
     public boolean Confirm(String input) {
-        if(input == null){
+        if (input == null) {
             Output(true, "You have cancelled the transaction.");
-        }
-        else if (input.equals("yes")) {
+        } else if (input.equals("yes")) {
             AvailableTicket t = new AvailableTicket(
                     selectedTicket.GetEventName(),
                     selectedTicket.GetSellerUsername(),
@@ -198,8 +207,9 @@ public class BuyManager {
             } else {
                 System.out.print(str);
             }
+        } else {
+            str = "";
         }
-        else str = "";
         return str;
     }
 
