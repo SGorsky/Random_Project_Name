@@ -175,6 +175,19 @@ public class BuyManagerTest {
         instance.input = "20";
         result = instance.ParseNumTickets(instance.input);
         assertEquals(false, result);
+
+        //Statement 9: input less than zero
+        instance.input = "-1";
+        result = instance.ParseNumTickets(instance.input);
+        assertEquals(false, result);
+
+        //Statement 10: user does not have enough funds.
+        instance.input = "4";
+        testBuyStandard.setCredit(10);
+        instance.myAccount = testBuyStandard;
+        result = instance.ParseNumTickets(instance.input);
+        assertEquals(false, result);
+
     }
 
     /**
@@ -194,7 +207,7 @@ public class BuyManagerTest {
         instance.input = null;
         result = instance.Confirm(instance.input);
         assertEquals(true, result);
-        
+
         //Statement 3: input == "Yes"
         instance.input = "Yes";
         result = instance.Confirm(instance.input);
