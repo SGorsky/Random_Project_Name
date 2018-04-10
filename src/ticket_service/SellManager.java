@@ -92,7 +92,7 @@ public class SellManager {
         return true;
     }
 
-    // Get input fro event title to sell and check if valid.
+    // Get input from event title to sell and check if valid.
     public boolean ParseEventTitle(String input) {
         if (input != null) {
             if (input.length() <= 25) {
